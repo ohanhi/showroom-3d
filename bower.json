@@ -1,0 +1,29 @@
+{
+  "name": "showroom-3d",
+  "version": "1.0.0",
+  "authors": [
+    "Ossi Hanhinen"
+  ],
+  "description": "An element providing a solution to no problem in particular.",
+  "keywords": [
+    "web-component",
+    "polymer",
+    "3d model",
+    "model",
+    "showroom"
+  ],
+  "main": "showroom-3d.html",
+  "license": "https://github.com/ohanhi/showroom-3d/LICENSE",
+  "homepage": "https://github.com/ohanhi/showroom-3d/",
+  "ignore": [
+    "/.*",
+    "/test/"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.2.0"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "web-component-tester": "^4.0.0"
+  }
+}

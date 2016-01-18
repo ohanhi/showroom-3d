@@ -1,0 +1,270 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="threejs-imports.html">
+
+<!--
+An element providing a solution to no problem in particular.
+
+Example:
+
+    <showroom-3d></showroom-3d>
+
+Example:
+
+    <showroom-3d>
+      <showroom-3d-model type="stl" src="model.stl"></showroom-3d-model>
+    </showroom-3d>
+
+@demo demo/index.html
+@hero hero.svg
+-->
+
+<dom-module id="showroom-3d">
+  <template>
+    <style>
+      :host {
+        display: block;
+        box-sizing: border-box;
+        position: relative;
+        max-width: 100%;
+      }
+
+      #render {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+    <div id="render"></div>
+
+    <content></content>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: 'showroom-3d',
+
+      properties: {
+        models: Array
+      },
+
+      // Element Lifecycle
+
+      ready: function() {
+        // `ready` is called after all elements have been configured, but
+        // propagates bottom-up. This element's children are ready, but parents
+        // are not.
+        var children = Polymer.dom(this).querySelectorAll('showroom-3d-model');
+
+        this.models = [].map.call(children, function(model) {
+          var attrs = model.attributes;
+          return {
+            src: attrs.src && attrs.src.value,
+            type: (attrs.type && attrs.type.value) ? attrs.type.value : 'stl',
+            color: (attrs.color && attrs.color.value) ? attrs.color.value : '0xffffff'
+          };
+        }).filter(function(model) {
+          return typeof model.src === 'string' && model.src.length > 0;
+        });
+
+
+        console.log(this.models);
+
+      },
+
+      attached: function() {
+        // `attached` fires once the element and its parents have been inserted
+        // into a document.
+        //
+        // This is a good place to perform any work related to your element's
+        // visual state or active behavior (measuring sizes, beginning animations,
+        // loading resources, etc).
+        this.init(this, this.$.render);
+      },
+
+      detached: function() {
+        // The analog to `attached`, `detached` fires when the element has been
+        // removed from a document.
+        //
+        // Use this to clean up anything you did in `attached`.
+      },
+
+      init: function(polymerElement, container) {
+        if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+        var camera, controls, scene, renderer, explode;
+
+        var cross;
+
+        var offsets = {
+          x: -50,
+          z: -10,
+          y: 0
+        };
+
+
+        init();
+        animate();
+
+
+        function init() {
+
+          camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.01, 1e10);
+          camera.position.z = -200;
+
+          controls = new THREE.TrackballControls(camera);
+
+          controls.rotateSpeed = 5.0;
+          controls.zoomSpeed = 5;
+          controls.panSpeed = 2;
+
+          controls.noZoom = false;
+          controls.noPan = false;
+
+          controls.staticMoving = true;
+          controls.dynamicDampingFactor = 0.3;
+
+          scene = new THREE.Scene();
+
+          scene.autoRotate = false;
+
+          scene.add(camera);
+
+          // lights
+
+          var lights = [
+            {
+              x: 400,
+              y: 1000,
+              z: 1000,
+              color: 0xffffff,
+              intensity: 1.0,
+            },
+            {
+              x: -400,
+              y: -200,
+              z: 1000,
+              color: 0xffffff,
+              intensity: 0.4,
+            },
+          ];
+
+          lights.forEach(function(light) {
+            var dirLight = new THREE.DirectionalLight(light.color);
+            dirLight.position.set(light.x, light.y, light.z).normalize();
+
+            camera.add(dirLight);
+            camera.add(dirLight.target);
+          });
+
+          var caseColor = 0x645862;
+          var motionSensorColor = 0xffffff;
+          var methaneSensorColor = 0xf0f0ff;
+
+          var imgPath = 'img/';
+          var urls = [
+            imgPath + 'wall.png', imgPath + 'wall.png',
+            imgPath + 'ceiling.png', imgPath + 'floor.png',
+            imgPath + 'wall.png', imgPath + 'wall.png'
+          ];
+
+          var loader = new THREE.STLLoader();
+          var textureCube = THREE.ImageUtils.loadTextureCube( urls );
+
+          var models = polymerElement.models;
+
+          models.forEach(function(model, index) {
+            loader.load(model.src, function (geometry) {
+
+              geometry.computeVertexNormals();
+
+              var opts = {
+                shading: THREE.SmoothShading,
+                color: parseInt(model.color)
+              };
+
+              if (model.envMap) {
+                opts.envMap = model.envMap
+              }
+
+              var material = new THREE.MeshPhongMaterial(opts);
+
+              var mesh = new THREE.Mesh(geometry, material);
+              mesh.position.x = offsets.x;
+              mesh.position.y = offsets.y;
+              mesh.position.z = offsets.z;
+              scene.add(mesh);
+
+              model.mesh = mesh;
+
+            });
+          });
+
+          var shader = THREE.ShaderLib["cube"];
+          shader.uniforms["tCube"].value = textureCube;
+
+          var material = new THREE.ShaderMaterial( {
+
+            fragmentShader: shader.fragmentShader,
+            vertexShader: shader.vertexShader,
+            uniforms: shader.uniforms,
+            depthWrite: false,
+            side: THREE.BackSide
+
+          } ),
+
+          mesh = new THREE.Mesh(new THREE.BoxGeometry(1000, 1000, 1000), material);
+          scene.add(mesh);
+
+          // renderer
+
+          renderer = new THREE.WebGLRenderer({ antialias: false });
+          renderer.setPixelRatio(window.devicePixelRatio);
+          container.appendChild(renderer.domElement);
+          renderer.setSize(container.clientWidth, container.clientHeight);
+
+          //
+
+          window.addEventListener( 'resize', onWindowResize, false );
+        }
+
+        function onWindowResize() {
+
+          camera.aspect = container.clientWidth / container.clientHeight;
+          camera.updateProjectionMatrix();
+
+          renderer.setSize(container.clientWidth, container.clientHeight);
+
+          controls.handleResize();
+
+        }
+
+        function moveCamera(now) {
+          camera.position.x = Math.cos(now*0.0001) * 200;
+          camera.position.z = Math.sin(now*0.0001) * 200;
+
+          camera.lookAt(scene.position);
+        }
+
+        function animate() {
+          requestAnimationFrame( animate );
+          var now = Date.now();
+
+          if (scene.autoRotate) {
+            moveCamera(now);
+          } else {
+            controls.update();
+          }
+
+          renderer.render(scene, camera);
+        }
+
+        return scene;
+      }
+    });
+  </script>
+</dom-module>
