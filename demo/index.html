@@ -17,22 +17,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <link rel="import" href="../showroom-3d.html">
     <link rel="import" href="../showroom-3d-model.html">
     <style media="screen">
+      html {
+        font-family: 'Roboto', 'Noto', sans-serif;
+      }
       showroom-3d {
         height: 300px;
+        border: 1px solid #ccc;
       }
     </style>
   </head>
   <body unresolved>
 
-    <p>An example of <code>&lt;showroom-3d&gt;</code>:</p>
+    <p>An example of <code>&lt;showroom-3d&gt;</code>. Try dragging and scrolling with the mouse:</p>
 
     <showroom-3d rotation-x="-90">
       <showroom-3d-model format="stl" src="models/chilicorn-hipoly.stl"></showroom-3d-model>
     </showroom-3d>
 
-    <script>
-      var seedElement = document.querySelector('showroom-3d');
-    </script>
+    <p>An example with <code>auto-rotate="true"</code>, <code>camera-offset-z="100"</code> and a color on the model:</p>
+    <showroom-3d rotation-x="-90" auto-rotate="true" camera-offset-z="100">
+      <showroom-3d-model format="stl" src="models/chilicorn-hipoly.stl" color="0xFE57A1"></showroom-3d-model>
+    </showroom-3d>
 
   </body>
 </html>
