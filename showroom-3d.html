@@ -273,15 +273,7 @@ Example:
               camera.add(dirLight.target);
             });
 
-            var imgPath = 'img/';
-            var urls = [
-              imgPath + 'wall.png', imgPath + 'wall.png',
-              imgPath + 'ceiling.png', imgPath + 'floor.png',
-              imgPath + 'wall.png', imgPath + 'wall.png'
-            ];
-
             var loader = new THREE.STLLoader();
-            var textureCube = THREE.ImageUtils.loadTextureCube(urls);
 
             var models = el.models;
 
@@ -294,10 +286,6 @@ Example:
                   shading: THREE.SmoothShading,
                   color: parseInt(model.color)
                 };
-
-                if (model.envMap) {
-                  opts.envMap = model.envMap
-                }
 
                 var material = new THREE.MeshPhongMaterial(opts);
 
@@ -315,26 +303,13 @@ Example:
               });
             });
 
-            var shader = THREE.ShaderLib["cube"];
-            shader.uniforms["tCube"].value = textureCube;
-
-            var material = new THREE.ShaderMaterial({
-              fragmentShader: shader.fragmentShader,
-              vertexShader: shader.vertexShader,
-              uniforms: shader.uniforms,
-              depthWrite: false,
-              side: THREE.BackSide
-            });
-
-            var mesh = new THREE.Mesh(new THREE.BoxGeometry(1000, 1000, 1000), material);
-            scene.add(mesh);
-
             // renderer
 
             renderer = new THREE.WebGLRenderer({ antialias: false });
             renderer.setPixelRatio(window.devicePixelRatio);
             container.appendChild(renderer.domElement);
             renderer.setSize(container.clientWidth, container.clientHeight);
+            renderer.setClearColor(0xFAFAFA);
 
             //
 
