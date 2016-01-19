@@ -152,10 +152,13 @@ Example:
 
         /**
         * Camera offset along the Z-axis.
+        *
+        * **NOTE:** This is also the distance
+        * of the camera if `autoRotate` is on.
         */
         cameraOffsetZ: {
           type: Number,
-          value: -200,
+          value: 200,
           observer: '_cameraOffsetChanged'
         },
       },
@@ -171,21 +174,23 @@ Example:
 
       _rotationChanged: function() {
         if (!this.models) return;
+        var self = this;
         this.models.forEach(function(model) {
           var mesh = model.mesh;
-          mesh.rotation.x = this._degToRad(this.rotationX);
-          mesh.rotation.y = this._degToRad(this.rotationY);
-          mesh.rotation.z = this._degToRad(this.rotationZ);
+          mesh.rotation.x = self._degToRad(self.rotationX);
+          mesh.rotation.y = self._degToRad(self.rotationY);
+          mesh.rotation.z = self._degToRad(self.rotationZ);
         });
       },
 
       _offsetChanged: function() {
         if (!this.models) return;
+        var self = this;
         this.models.forEach(function(model) {
           var mesh = model.mesh;
-          mesh.position.x = this.offsetX;
-          mesh.position.y = this.offsetY;
-          mesh.position.z = this.offsetZ;
+          mesh.position.x = self.offsetX;
+          mesh.position.y = self.offsetY;
+          mesh.position.z = self.offsetZ;
         });
       },
 
@@ -249,7 +254,7 @@ Example:
 
             scene = new THREE.Scene();
 
-            scene.autoRotate = false;
+            scene.autoRotate = el.autoRotate;
 
             scene.add(camera);
 
@@ -328,8 +333,8 @@ Example:
           }
 
           function moveCamera(now) {
-            camera.position.x = Math.cos(now*0.0001) * 200;
-            camera.position.z = Math.sin(now*0.0001) * 200;
+            camera.position.x = Math.cos(now*0.0001) * el.cameraOffsetZ;
+            camera.position.z = Math.sin(now*0.0001) * el.cameraOffsetZ;
 
             camera.lookAt(scene.position);
           }
@@ -338,7 +343,7 @@ Example:
             requestAnimationFrame( animate );
             var now = Date.now();
 
-            if (scene.autoRotate) {
+            if (el.scene && el.scene.autoRotate) {
               moveCamera(now);
             } else {
               controls.update();
