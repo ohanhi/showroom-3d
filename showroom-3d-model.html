@@ -1,20 +1,42 @@
 <link rel="import" href="../polymer/polymer.html">
 
 <dom-module id="showroom-3d-model">
+  <template>
+    <style>
+      :host {
+        display: none;
+      }
+    </style>
+  </template>
   <script>
     Polymer({
       is: 'showroom-3d-model',
 
       properties: {
         /**
-         * `fancy` indicates that the element should don a monocle and tophat,
-         * while checking its pocket watch.
-         */
-        fancy: Boolean,
-
+        * File path for the 3D model file.
+        */
         src: String,
 
-        type: String,
+        /**
+        * File format of the 3D model, in lowercase letters.
+        */
+        format: {
+          type: String,
+          value: 'stl'
+        },
+
+        /**
+        * Color as a number. `0x` is the prefix for hex numbers, so you can use
+        * the same color codes as in CSS like so:
+        *    '0xFFFFFF' // white
+        *    '0xFF0000' // red
+        *    '0xFF6347' // tomato
+        */
+        color: {
+          type: String,
+          value: '0xFFFFFF'
+        }
       }
     });
   </script>

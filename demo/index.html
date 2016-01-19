@@ -19,7 +19,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <style media="screen">
       showroom-3d {
         height: 300px;
-        width: 400px;
       }
     </style>
   </head>
@@ -27,21 +26,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     <p>An example of <code>&lt;showroom-3d&gt;</code>:</p>
 
-    <p>
-      Styles:
-    </p>
-<pre>
-<code>
-  showroom-3d {
-    height: 300px;
-    width: 400px;
-  }
-</code>
-</pre>
-
-    <showroom-3d>
-      <h2>Hello showroom-3d</h2>
-      <showroom-3d-model type="stl" src="models/chilicorn-hipoly.stl"></showroom-3d-model>
+    <showroom-3d rotation-x="-90">
+      <showroom-3d-model format="stl" src="models/chilicorn-hipoly.stl"></showroom-3d-model>
     </showroom-3d>
 
     <script>
